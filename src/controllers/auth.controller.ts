@@ -3,6 +3,7 @@ import z from "zod";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { User } from "../models/user.model";
+import { getJwtSecret } from "../helpers/functions";
 
 const registerSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -14,16 +15,6 @@ const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
 });
-
-function getJwtSecret(): string {
-  const secret = process.env.JWT_SECRET;
-
-  if (!secret) {
-    throw new Error("JWT_SECRET is not configured");
-  }
-
-  return secret;
-}
 
 export const register = async (
   req: Request,
@@ -94,9 +85,13 @@ export const login = async (
       return;
     }
 
-    const token = jwt.sign({ sub: user._id.toString() }, getJwtSecret(), {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { sub: user._id.toString(), role: user.role },
+      getJwtSecret(),
+      {
+        expiresIn: "1h",
+      },
+    );
 
     res.status(200).json({
       message: "Login successful",
