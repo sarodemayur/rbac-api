@@ -9,6 +9,7 @@ export interface IUser {
   email: string;
   password: string;
   role: Role;
+  profileUrl: string | null;
 }
 
 const userSchema = new Schema<IUser>(
@@ -35,6 +36,10 @@ const userSchema = new Schema<IUser>(
       enum: ROLES,
       default: "user",
       required: true,
+    },
+    profileUrl: {
+      type: String,
+      default: null,
     },
   },
   { timestamps: true },
